@@ -18,6 +18,7 @@ public class AllFunction {
 		p.writeHexString("00 00 00 00 00 00 00 05 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 01 00 00 00 00 00 00 00 04 00 00 00 16 4C 00 6F 00 61 00 64 00 31 00 5F 00 31 00 2E 00 64 00 64 00 73 00 00 00 00 16 4C 00 6F 00 61 00 64 00 31 00 5F 00 32 00 2E 00 64 00 64 00 73 00 00 00 00 16 4C 00 6F 00 61 00 64 00 31 00 5F 00 33 00 2E 00 64 00 64 00 73 00 00 00 00 1A 4C 00 6F 00 61 00 64 00 47 00 61 00 75 00 67 00 65 00 2E 00 64 00 64 00 73 00 00 00 00 02 00 00 00 00 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 03 00 00 00 24 75 00 69 00 5F 00 6D 00 61 00 74 00 63 00 68 00 5F 00 6C 00 6F 00 61 00 64 00 31 00 2E 00 64 00 64 00 73 00 00 00 00 24 75 00 69 00 5F 00 6D 00 61 00 74 00 63 00 68 00 5F 00 6C 00 6F 00 61 00 64 00 32 00 2E 00 64 00 64 00 73 00 00 00 00 24 75 00 69 00 5F 00 6D 00 61 00 74 00 63 00 68 00 5F 00 6C 00 6F 00 61 00 64 00 33 00 2E 00 64 00 64 00 73 00 00 00 00 00 00 00 00 03 00 00 00 00 00 00 00 14 53 00 71 00 75 00 61 00 72 00 65 00 2E 00 6C 00 75 00 61 00 00 00 00 01 00 00 00 20 53 00 71 00 75 00 61 00 72 00 65 00 4F 00 62 00 6A 00 65 00 63 00 74 00 2E 00 6C 00 75 00 61 00 00 00 00 02 00 00 00 24 53 00 71 00 75 00 61 00 72 00 65 00 33 00 44 00 4F 00 62 00 6A 00 65 00 63 00 74 00 2E 00 6C 00 75 00 61 00 00 00 00 03 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 00 00 00 00 0B 00 00 00 18 47 00 43 00 4D 00 61 00 73 00 74 00 65 00 72 00 2E 00 64 00 6C 00 6C 00 00 00 00 1E 47 00 43 00 4D 00 61 00 73 00 74 00 65 00 72 00 55 00 53 00 41 00 2E 00 64 00 6C 00 6C 00 00 00 00 20 47 00 43 00 54 00 72 00 61 00 69 00 6E 00 65 00 72 00 44 00 6C 00 6C 00 2E 00 64 00 6C 00 6C 00 00 00 00 1E 47 00 72 00 61 00 6E 00 64 00 43 00 68 00 61 00 73 00 65 00 4C 00 2E 00 64 00 6C 00 6C 00 00 00 00 20 4D 00 61 00 63 00 68 00 69 00 6E 00 65 00 43 00 6F 00 72 00 65 00 32 00 2E 00 64 00 6C 00 6C 00 00 00 00 18 50 00 65 00 6E 00 65 00 4C 00 6F 00 63 00 6F 00 2E 00 64 00 6C 00 6C 00 00 00 00 16 50 00 69 00 63 00 68 00 75 00 6C 00 61 00 2E 00 64 00 6C 00 6C 00 00 00 00 18 50 00 69 00 63 00 68 00 75 00 6C 00 6F 00 6E 00 2E 00 64 00 6C 00 6C 00 00 00 00 12 6D 00 61 00 69 00 6E 00 32 00 2E 00 64 00 6C 00 6C 00 00 00 00 18 6D 00 61 00 6D 00 61 00 77 00 65 00 76 00 6F 00 2E 00 64 00 6C 00 6C 00 00 00 00 14 70 00 65 00 72 00 72 00 6F 00 32 00 2E 00 64 00 6C 00 6C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00");
 		c.sendPacket(p, true);
 	}
+	
 	public static void sendShaFileList(LoginClient c) {
 		Packet p = new Packet(OpcodeLogin.ENU_SHAFILENAME_LIST_ACK);
 		
@@ -78,14 +79,15 @@ public class AllFunction {
 			ps.close();
 			rs.close();			
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(); return;
 		}
 		
 		// 기본 데이터 보내기
-		sendServerList(c);
+		sendServerListFromDB(c);
         sendChannelNews(c);
         sendItemBuyInfo(c);
-        sendClientOpenContents(c);
+        //sendClientOpenContents(c);
+        ClientContentsOpen.sendClientOpenContents(c);
         sendSocketTableInfo(c);
         sendCashbackRatioInfo(c);
         
@@ -211,6 +213,64 @@ public class AllFunction {
 		c.sendPacket(p, false);
 	}
 	
+	public static void sendServerListFromDB(LoginClient c) {
+		Packet p = new Packet(OpcodeLogin.ENU_SERVER_LIST_NOT);
+
+		Connection con = Database.getConnection();
+ 		PreparedStatement ps = null;
+ 		ResultSet rs = null;
+ 		try {
+ 			// 개수 얻기
+ 			ps = con.prepareStatement("SELECT COUNT(*) AS `count` FROM `gameserver` WHERE `Show` = 1 ORDER BY `Order` ASC");
+ 			rs = ps.executeQuery();
+ 			
+ 			rs.first();
+ 			int gameserver_count = rs.getInt("count");
+ 			p.writeInt(gameserver_count);
+ 			
+ 			Database.close(null, ps, rs);
+ 			
+ 			// 서버 얻기
+ 			int i = 0;
+ 			ps = con.prepareStatement("SELECT * FROM `gameserver` WHERE `Show` = 1 ORDER BY `Order` ASC");
+ 			rs = ps.executeQuery();
+ 			if( rs.first() == true ) {
+ 				do {
+					String serverName = rs.getString("ServerName");
+					String serverDesc = rs.getString("ServerDesc");
+					String serverIP = rs.getString("IP");
+					short serverPort = rs.getShort("Port");
+					
+					i++;
+					p.writeInt(i);
+					p.writeInt(i);
+					p.writeInt(serverName.length() * 2);
+					p.writeUnicodeString(serverName);
+					p.writeInt(serverIP.length());
+					p.writeString(serverIP);
+					p.writeShort( serverPort );
+					p.writeInt(0); // 현재 인원
+					p.writeInt(500); // 수용 가능 인원
+					p.writeInt(327); // 프로토콜 버전
+					p.writeHexString("FF FF FF FF FF FF FF FF");
+					p.writeInt(serverIP.length()); // 또 보냄
+					p.writeString(serverIP); // ...
+					p.writeInt(serverDesc.length() * 2);
+					p.writeUnicodeString(serverDesc);
+					p.writeInt(0);
+ 				}while( rs.next() );
+ 			}
+ 		}catch(Exception e) {
+ 			e.printStackTrace();
+ 		} finally {
+ 			Database.close(con, ps, rs);
+ 		}
+ 		
+ 		p.writeInt(0);
+		
+		c.sendPacket(p, false);
+	}
+	
 	public static void sendClientOpenContents(LoginClient c) {
 		Packet p = new Packet(OpcodeLogin.ENU_NEW_CLIENT_CONTENTS_OPEN_NOT);
 		
@@ -261,7 +321,7 @@ public class AllFunction {
 			ps.close();
 			con.close();
 		}catch(Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(); return;
 		}
 		
 		p.writeInt(0);
