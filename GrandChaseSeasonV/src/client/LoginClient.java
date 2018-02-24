@@ -9,19 +9,24 @@ import packet.Crypto;
 import packet.OpcodeLogin;
 import packet.Packet;
 import server.Main;
+import server.Main;
+import server.Server;
 import server.SocketRecvHandler;
 import util.Convert;
 
 public class LoginClient extends Client {
-	public LoginClient(Socket s)  {
+	public Server server = null;
+	
+	public LoginClient(Socket s, Server srv)  {
 		isClosed = false;
 		this.s = s;
+		this.server = srv;
 		client_type = Client.LOGIN_CLIENT;
 		
 		sh = new SocketRecvHandler(this);
 		sh.start();
 		
-		Main.printmsg("새로운 클라이언트 접속 (" + s.getInetAddress().getHostAddress() + ":" + s.getPort() + ")");
+		Main.printmsg("[" + server.serverName + "] 새로운 클라이언트 접속 (" + s.getInetAddress().getHostAddress() + ":" + s.getPort() + ")");
 		
 		// 패킷 암호화 키 초기화
 		SecureRandom sr = new SecureRandom();
@@ -31,7 +36,7 @@ public class LoginClient extends Client {
 		
 		// 처음 보내는 패킷
 		isFirstPacket = true;
-		Packet p = new Packet(OpcodeLogin.SET_SECURITY_KEY_NOT);
+		Packet p = new Packet(OpcodeLogin.EVENT_ACCEPT_CONNECTION_NOT);
 		p.write(packetPrefix);
 		p.writeInt(8);
 		p.write(packetHmac);
@@ -62,7 +67,7 @@ public class LoginClient extends Client {
 		else
 			sendbuffer = Crypto.AssemblePacket(p, packetKey, packetHmac, packetPrefix, packetNum++, compress);
 		
-		//System.out.println( Convert.byteArrayToHexString(sendbuffer) );
+		//System.out.println( Convert.byteArrayToHexString(p.buffer) );
 		
 		try {
 			OutputStream os = s.getOutputStream();
@@ -82,6 +87,8 @@ public class LoginClient extends Client {
 		int isCompressed = p.readByte();
 		if( isCompressed == 1 ) p.readInt();
 		
+		//Main.printmsg(Opcode + "패킷 수신 (" + dataSize + "바이트)\n" + Convert.byteArrayToHexString(p.buffer));
+		
 		switch( Opcode ) {
 		case OpcodeLogin.HEART_BIT_NOT: // ��Ʈ��Ʈ
 			heartbit = System.currentTimeMillis();
@@ -100,6 +107,7 @@ public class LoginClient extends Client {
 			break;
 		case OpcodeLogin.ENU_CLIENT_PING_CONFIG_REQ:
 			AllFunction.sendClientPingConfig(this);
+			//AllFunction.sendClientContentsFirstInitInfo(this);
 			break;
 		default:
 			Main.printmsg("정의되지 않은 패킷 수신 (" + dataSize + "바이트)\n" + Convert.byteArrayToHexString(p.buffer));
