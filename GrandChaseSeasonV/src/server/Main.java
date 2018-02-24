@@ -1,13 +1,15 @@
 package server;
 
 import java.util.Calendar;
+import java.util.Vector;
 import util.*;
 
 public class Main {
-	public Login server_login = null;
+	public Server server_login = null;
+	public Vector<Server> server_game = new Vector<Server>();
 	
 	public Main() {
-		printmsg( "Grand Chase Season V Emulator" );
+		printmsg( "Grand Chase Season V EP3 Emulator" );
 		
 		printmsg("데이터베이스 연결 테스트...");
 		if( Database.test() == true )
@@ -19,8 +21,22 @@ public class Main {
 		}
 		
 		if( Ini.getIni("login.enable").equals("1") == true ) {
-			server_login = new Login( Integer.parseInt(Ini.getIni("login.port")) );
+			server_login = new Server( Integer.parseInt(Ini.getIni("login.port")), 1, 0 );
 			server_login.start();
+		}
+		
+		if( Ini.getIni("game.enable").equals("1") == true ) {
+			int gameserver_count = Integer.parseInt( Ini.getIni("game.servercount") );
+			
+			Server temp_server = null;
+			
+			for( int i=1; i<=gameserver_count; i++ ) {
+				temp_server = new Server( 0, 
+						                   2, 
+						                   i
+						                 );
+				temp_server.start();
+			}
 		}
 	}
 	
