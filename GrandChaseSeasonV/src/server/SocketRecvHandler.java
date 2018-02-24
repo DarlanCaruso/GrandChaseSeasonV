@@ -1,8 +1,10 @@
 package server;
 
 import java.io.InputStream;
+import java.net.SocketException;
 
 import client.Client;
+import client.GameClient;
 import client.LoginClient;
 import packet.Packet;
 import util.Convert;
@@ -24,6 +26,8 @@ public class SocketRecvHandler extends Thread {
 			lc.close();
 			break;
 		case Client.GAME_CLIENT:
+			GameClient gc = (GameClient)parent;
+			gc.close();
 			break;
 		}
 	}
@@ -38,7 +42,7 @@ public class SocketRecvHandler extends Thread {
 				int readBytes = -1;
 				
 				// 패킷 계속 수신한다
-				while( (readBytes = is.read(data)) != -1 ) {
+				while( (readBytes = is.read(data)) > 0 ) {
 					appendPacket(data, readBytes);
 				}
 				
@@ -47,9 +51,8 @@ public class SocketRecvHandler extends Thread {
 				return;
 				
 			}
-			
 		}catch(Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		
 		end();
@@ -100,6 +103,8 @@ public class SocketRecvHandler extends Thread {
 				lc.onPacket(p);
 				break;
 			case Client.GAME_CLIENT:
+				GameClient gc = (GameClient)parent;
+				gc.onPacket(p);
 				break;
 			}
 			
