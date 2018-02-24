@@ -7,6 +7,7 @@ import server.SocketRecvHandler;
 public class Client {
 	public final static int LOGIN_CLIENT = 1;
 	public final static int GAME_CLIENT = 2;
+	public final static int MSG_CLIENT = 3;
 	public int client_type = 0;
 	
 	public boolean isClosed = false;
