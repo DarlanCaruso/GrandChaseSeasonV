@@ -16,6 +16,20 @@ public class Crypto {
     public final static byte[] GC_HMAC_KEY = { (byte) 0xC0, (byte) 0xD3, (byte) 0xBD, (byte) 0xC3, (byte) 0xB7, (byte) 0xCE, (byte) 0xB8, (byte) 0xB8 };
     public final static byte GC_HMAC_SIZE = 10;
     
+    public static byte[] zlibcompress(byte[] buffer) {
+    	byte[] temp = new byte[ (int)(buffer.length * 1.5) ];
+		Deflater compresser = new Deflater(Deflater.DEFAULT_COMPRESSION, false);
+		compresser.setInput(buffer);
+	    compresser.finish();
+	    int compressedDataLength = compresser.deflate(temp);
+	    compresser.end();
+	    
+	    byte[] result = new byte[compressedDataLength];
+	    System.arraycopy(temp, 0, result, 0, compressedDataLength);
+	    
+	    return result;
+    }
+    
     public static byte[] AssemblePacket(Packet p, byte[] key, byte[] hmac, byte[] prefix, int packetno, boolean compress) {
 		try {
 			DESKeySpec keySpec = new DESKeySpec(key);
